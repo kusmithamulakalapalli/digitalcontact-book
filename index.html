@@ -1,596 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Hub 2.0 - Advanced Contact Manager</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <title>Smart Contact Book</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f5f5;
+    }
+    header {
+      background: #2c3e50;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 { margin: 0; }
+    header p { margin-top: 8px; font-size: 14px; opacity: 0.9; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
+    .form-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .form-row input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      min-width: 150px;
+    }
+    button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #addBtn { background: #27ae60; color: #fff; }
+    #updateBtn { background: #2980b9; color: #fff; display: none; }
+    #cancelEditBtn { background: #7f8c8d; color: #fff; display: none; }
 
-        .header {
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
+    .filter-section {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+      align-items: center;
+    }
+    #searchInput {
+      flex: 1;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    #favoritesOnly {
+      padding: 8px 12px;
+      background: #f39c12;
+      color: #fff;
+    }
+    #favoritesOnly:hover { background: #e67e22; }
 
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border-bottom: 1px solid #eee;
+      padding: 12px 8px;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background: #ecf0f1;
+      position: sticky;
+      top: 0;
+    }
 
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
+    .action-btn {
+      margin-right: 4px;
+      margin-bottom: 4px;
+      font-size: 12px;
+      padding: 6px 8px;
+    }
+    .edit { background: #2980b9; color: #fff; }
+    .delete { background: #c0392b; color: #fff; }
+    .call { background: #16a085; color: #fff; }
+    .sms { background: #8e44ad; color: #fff; }
+    .loc { background: #d35400; color: #fff; }
+    .favorite {
+      background: #f1c40f;
+      color: #fff;
+      font-weight: bold;
+    }
+    .favorite.unfavorite:hover { background: #f39c12; }
 
-        .controls {
-            padding: 30px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-        }
+    .favorite-icon {
+      font-size: 16px;
+      margin-right: 4px;
+    }
+    .favorite-row {
+      background-color: #fff3cd;
+      font-weight: 500;
+    }
 
-        .search-box {
-            position: relative;
-            margin-bottom: 20px;
-        }
+    #locationStatus {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      background: #e8f4f8;
+      border-left: 4px solid #3498db;
+    }
 
-        .search-box input {
-            width: 100%;
-            padding: 15px 50px 15px 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 50px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #4ecdc4;
-            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
-        }
-
-        .search-box i {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 5px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
-        }
-
-        .btn-success {
-            background: linear-gradient(45deg, #4ecdc4, #44d3e0);
-            color: white;
-        }
-
-        .btn-location {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .form-section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .form-group input, .form-group select {
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #4ecdc4;
-        }
-
-        .contacts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-        }
-
-        .contact-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            border-left: 5px solid #4ecdc4;
-        }
-
-        .contact-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-        }
-
-        .contact-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-
-        .contact-name {
-            font-size: 1.4em;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .favorite-btn {
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: #ffc107;
-        }
-
-        .contact-details {
-            margin-bottom: 20px;
-        }
-
-        .detail-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            color: #666;
-        }
-
-        .detail-item i {
-            margin-right: 10px;
-            width: 20px;
-            color: #4ecdc4;
-        }
-
-        .location-info {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-size: 0.9em;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-small {
-            padding: 8px 15px;
-            font-size: 14px;
-            flex: 1;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-        }
-
-        .empty-state i {
-            font-size: 4em;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .stats {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            flex: 1;
-            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .contacts-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats {
-                flex-direction: column;
-            }
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 10px;
-            color: white;
-            font-weight: 500;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .notification.success {
-            background: linear-gradient(45deg, #4ecdc4, #44d3e0);
-        }
-
-        .notification.error {
-            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-        }
-    </style>
+    @media (max-width: 768px) {
+      .form-row { flex-direction: column; }
+      .filter-section { flex-direction: column; }
+      .action-btn { font-size: 11px; padding: 4px 6px; margin: 1px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-address-book"></i> Contact Hub 2.0</h1>
-            <p>Advanced Contact Management with Location Tracking & Smart Features</p>
-        </div>
+<header>
+  <h1>⭐ Smart Contact Book</h1>
+  <p>Manage contacts with favorites, call, SMS, location tracking & search - perfect for your CSE project!</p>
+</header>
 
-        <div class="controls">
-            <div class="stats">
-                <div class="stat-card">
-                    <div id="totalContacts">0</div>
-                    <div>Total Contacts</div>
-                </div>
-                <div class="stat-card" style="background: linear-gradient(45deg, #4ecdc4, #44d3e0);">
-                    <div id="favoriteContacts">0</div>
-                    <div>Favorites</div>
-                </div>
-            </div>
-
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="🔍 Search contacts by name, phone or email...">
-                <i class="fas fa-search"></i>
-            </div>
-            
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <button class="btn btn-primary" onclick="showForm()">
-                    <i class="fas fa-plus"></i> Add Contact
-                </button>
-                <button class="btn btn-success" onclick="getCurrentLocation()">
-                    <i class="fas fa-map-marker-alt"></i> Track My Location
-                </button>
-                <button class="btn btn-location" onclick="sortContacts('alpha')">
-                    <i class="fas fa-sort-alpha-down"></i> A-Z Sort
-                </button>
-            </div>
-        </div>
-
-        <div class="content">
-            <!-- Add/Edit Form -->
-            <div id="contactForm" class="form-section" style="display: none;">
-                <h2 id="formTitle">Add New Contact</h2>
-                <form id="contactFormElement">
-                    <input type="hidden" id="editIndex">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label><i class="fas fa-user"></i> Name *</label>
-                            <input type="text" id="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-phone"></i> Phone *</label>
-                            <input type="tel" id="phone" required>
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-envelope"></i> Email</label>
-                            <input type="email" id="email">
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-briefcase"></i> Category</label>
-                            <select id="category">
-                                <option value="Personal">Personal</option>
-                                <option value="Work">Work</option>
-                                <option value="Family">Family</option>
-                                <option value="Friends">Friends</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 15px; justify-content: flex-end;">
-                        <button type="button" class="btn" onclick="hideForm()">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Contact</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Contacts List -->
-            <div id="contactsList">
-                <div class="empty-state" id="emptyState">
-                    <i class="fas fa-address-book"></i>
-                    <h3>No contacts yet</h3>
-                    <p>Add your first contact using the button above!</p>
-                </div>
-            </div>
-        </div>
+<div class="container">
+  <!-- Add/Edit Form -->
+  <div id="formSection">
+    <h2>Add New Contact</h2>
+    <div class="form-row">
+      <input type="text" id="name" placeholder="Full Name *" />
+      <input type="tel" id="phone" placeholder="Phone Number *" />
+      <input type="email" id="email" placeholder="Email (optional)" />
     </div>
+    <div class="form-row">
+      <button id="addBtn">➕ Add Contact</button>
+      <button id="updateBtn">✏️ Update Contact</button>
+      <button id="cancelEditBtn">❌ Cancel</button>
+    </div>
+  </div>
 
-    <!-- Notifications -->
-    <div id="notification" class="notification"></div>
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <h3>Contacts</h3>
+    <input type="text" id="searchInput" placeholder="🔍 Search by name or phone..." />
+    <button id="favoritesOnly">⭐ Favorites Only</button>
+  </div>
 
-    <script>
-        let contacts = JSON.parse(localStorage.getItem('contactHub2.0')) || [];
-        let currentLocation = null;
-        let isEditing = false;
+  <!-- Contact Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Fav</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="contactBody">
+      <!-- Dynamic content -->
+    </tbody>
+  </table>
 
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            renderContacts();
-            updateStats();
-            setupSearch();
-        });
+  <!-- Location Display -->
+  <div id="locationStatus"></div>
+</div>
 
-        // Form handling
-        document.getElementById('contactFormElement').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('name').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const category = document.getElementById('category').value;
-            
-            if (!name || !phone) {
-                showNotification('Please fill name and phone', 'error');
-                return;
-            }
+<script>
+  let contacts = [];
+  let editIndex = null;
+  let showFavoritesOnly = false;
 
-            const contact = {
-                name,
-                phone,
-                email,
-                category,
-                favorite: false,
-                location: currentLocation,
-                id: Date.now(),
-                createdAt: new Date().toISOString()
-            };
+  // DOM Elements
+  const nameInput = document.getElementById("name");
+  const phoneInput = document.getElementById("phone");
+  const emailInput = document.getElementById("email");
+  const addBtn = document.getElementById("addBtn");
+  const updateBtn = document.getElementById("updateBtn");
+  const cancelEditBtn = document.getElementById("cancelEditBtn");
+  const contactBody = document.getElementById("contactBody");
+  const searchInput = document.getElementById("searchInput");
+  const favoritesOnlyBtn = document.getElementById("favoritesOnly");
+  const locationStatus = document.getElementById("locationStatus");
 
-            const editIndex = document.getElementById('editIndex').value;
-            
-            if (isEditing && editIndex !== '') {
-                contacts[parseInt(editIndex)] = contact;
-                showNotification('Contact updated successfully!', 'success');
-            } else {
-                contacts.push(contact);
-                showNotification('Contact added successfully!', 'success');
-            }
+  // Render contacts with favorites styling
+  function renderContacts(filteredContacts) {
+    contactBody.innerHTML = "";
+    filteredContacts.forEach((contact, index) => {
+      const tr = document.createElement("tr");
+      if (contact.isFavorite) tr.classList.add("favorite-row");
 
-            saveContacts();
-            renderContacts();
-            updateStats();
-            hideForm();
-            this.reset();
-        });
+      tr.innerHTML = `
+        <td>
+          <button class="action-btn favorite ${contact.isFavorite ? '' : 'unfavorite'}" 
+                  onclick="toggleFavorite(${index})">
+            ${contact.isFavorite ? '⭐' : '☆'}
+          </button>
+        </td>
+        <td>${contact.name}</td>
+        <td>${contact.phone}</td>
+        <td>${contact.email || ""}</td>
+        <td>
+          <button class="action-btn call" onclick="callContact('${contact.phone}')">📞</button>
+          <button class="action-btn sms" onclick="smsContact('${contact.phone}')">💬</button>
+          <button class="action-btn edit" onclick="editContact(${index})">✏️</button>
+          <button class="action-btn delete" onclick="deleteContact(${index})">🗑️</button>
+          <button class="action-btn loc" onclick="trackLocation('${contact.name}')">📍</button>
+        </td>
+      `;
+      contactBody.appendChild(tr);
+    });
+  }
 
-        function showForm(index = -1) {
-            const form = document.getElementById('contactForm');
-            const title = document.getElementById('formTitle');
-            
-            if (index >= 0) {
-                isEditing = true;
-                const contact = contacts[index];
-                title.textContent = 'Edit Contact';
-                document.getElementById('name').value = contact.name;
-                document.getElementById('phone').value = contact.phone;
-                document.getElementById('email').value = contact.email || '';
-                document.getElementById('category').value = contact.category || 'Personal';
-                document.getElementById('editIndex').value = index;
-            } else {
-                isEditing = false;
-                title.textContent = 'Add New Contact';
-                document.getElementById('editIndex').value = '';
-            }
-            
-            form.style.display = 'block';
-            form.scrollIntoView({ behavior: 'smooth' });
-        }
+  // Toggle favorite status
+  window.toggleFavorite = function(index) {
+    contacts[index].isFavorite = !contacts[index].isFavorite;
+    renderCurrentList();
+  };
 
-        function hideForm() {
-            document.getElementById('contactForm').style.display = 'none';
-            document.getElementById('contactFormElement').reset();
-            isEditing = false;
-        }
+  // Add new contact
+  addBtn.addEventListener("click", () => {
+    const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
+    const email = emailInput.value.trim();
 
-        // Render contacts
-        function renderContacts(filteredContacts = null) {
-            const container = document.getElementById('contactsList');
-            const emptyState = document.getElementById('emptyState');
-            
-            let contactsToShow = filteredContacts || contacts.sort((a, b) => a.name.localeCompare(b.name));
-            
-            if (contactsToShow.length === 0) {
-                emptyState.style.display = 'block';
-                container.innerHTML = '';
-                return;
-            }
-            
-            emptyState.style.display = 'none';
-            container.innerHTML = `<div class="contacts-grid">${contactsToShow.map((contact, index) => createContactCard(contact, index)).join('')}</div>`;
-        }
+    if (!name || !phone) {
+      alert("❌ Name and phone are required!");
+      return;
+    }
 
-        function createContactCard(contact, originalIndex) {
-            const isFavorite = contact.favorite ? 'fas' : 'far';
-            const categoryColor = {
-                'Personal': '#ff6b6b',
-                'Work': '#4ecdc4',
-                'Family': '#667eea',
-                'Friends': '#ffc107'
-            };
+    contacts.push({ name, phone, email, isFavorite: false });
+    clearForm();
+    renderCurrentList();
+  });
 
-            let locationHtml = '';
-            if (contact.location) {
-                locationHtml = `
-                    <div class="location-info">
-                        <i class="fas fa-map-marker-alt"></i>
-                        ${contact.location.latitude.toFixed(4)}, ${contact.location.longitude.toFixed(4)}
-                        <br><small>📱 <a href="https://wa.me/${contact.phone}" target="_blank" style="color: #fff;">WhatsApp</a> | 
-                        <a href="tel:${contact.phone}" style="color: #fff;">📞 Call</a> | 
-                        <a href="sms:${contact.phone}" style="color: #fff;">💬 SMS</a></small>
-                    </div>
-                `;
-            }
+  // Edit contact
+  window.editContact = function(index) {
+    const contact = contacts[index];
+    nameInput.value = contact.name;
+    phoneInput.value = contact.phone;
+    emailInput.value = contact.email || "";
+    editIndex = index;
 
-            return `
-                <div class="contact-card">
-                    <div class="contact-header">
-                        <div class="contact-name">${contact.name}</div>
-                        <button class="favorite-btn" onclick="toggleFavorite(${contact.id})" title="Favorite">
-                            <i class="${isFavorite} fa-star"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="contact-details">
-                        <div class="detail-item">
-                            <i class="fas fa-phone"></i>
-                            <a href="tel:${contact.phone}" style="color: #333; text-decoration: none; font-weight: 600;">${contact.phone}</a>
-                        </div>
-                        ${contact.email ? `
-                        <div class="detail-item">
-                            <i class="fas fa-envelope"></i>
-                            <a href="mailto:${contact.email}" style="color: #333; text-decoration: none;">${contact.email}</a>
-                        </div>` : ''}
-                        <div class="detail-item">
-                            <i class="fas fa-tag" style="color: ${categoryColor[contact.category]}"></i>
-                            ${contact.category}
-                        </div>
-                    </div>
-                    
-                    ${locationHtml}
-                    
-                    <div class="action-buttons">
-                        <button class="btn btn-small btn-success" onclick="showForm(${originalIndex})">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn btn-small" style="background: #6c757d; color: white;" onclick="deleteContact(${contact.id})">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
+    addBtn.style.display = "none";
+    updateBtn.style.display = "inline-block";
+    cancelEditBtn.style.display = "inline-block";
+  };
 
-        // Contact actions
-        function deleteContact(id) {
-            if (confirm('Are you sure you want to delete this contact?')) {
-                contacts = contacts.filter(contact => contact.id !== id);
-                saveContacts();
-                renderContacts();
-                updateStats();
-                showNotification('Contact deleted successfully!', 'success');
-            }
-        }
+  // Update contact
+  updateBtn.addEventListener("click", () => {
+    if (editIndex === null) return;
 
-        function toggleFavorite(id) {
-            const contact = contacts.find(c => c.id === id);
-            if (contact) {
-                contact.favorite = !contact.favorite;
-                saveContacts();
-                renderContacts();
-                updateStats();
-            }
-        }
+    const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
+    const email = emailInput.value.trim();
 
-        // Search functionality
-        function setupSearch() {
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', function() {
-                const query = this.value.toLowerCase();
-                const filtered = contacts.filter(contact => 
-                    contact.name.toLowerCase().includes(query) ||
-                    contact.phone.includes(query) ||
-                    (contact.email && contact.email.toLowerCase().includes(query))
-                );
-                renderContacts(filtered);
-            });
-        }
+    if (!name || !phone) {
+      alert("❌ Name and phone are required!");
+      return;
+    }
 
-        // Location tracking
-        function getCurrentLocation() {
-            if (!navigator.geolocation) {
-                showNotification('Geolocation is not supported by this browser.', 'error');
-                return;
-            }
+    contacts[editIndex] = { 
+      name, 
+      phone, 
+      email, 
+      isFavorite: contacts[editIndex].isFavorite 
+    };
+    clearForm();
+    renderCurrentList();
 
-            showNotification('Getting your location...', 'success');
-            
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    currentLocation = {
+    editIndex = null;
+    addBtn.style.display = "inline-block";
+    updateBtn.style.display = "none";
+    cancelEditBtn.style.display = "none";
+  });
+
+  // Cancel edit
+  cancelEditBtn.addEventListener("click", clearFormAndReset);
+
+  // Delete contact
+  window.deleteContact = function(index) {
+    if (confirm("🗑️ Delete this contact?")) {
+      contacts.splice(index, 1);
+      renderCurrentList();
+    }
+  };
+
+  // Search + Filter logic
+  function renderCurrentList() {
+    const query = searchInput.value.toLowerCase();
+    let filtered = contacts.filter(contact =>
+      contact.name.toLowerCase().includes(query) ||
+      contact.phone.toLowerCase().includes(query)
+    );
+
+    if (showFavoritesOnly) {
+      filtered = filtered.filter(contact => contact.isFavorite);
+    }
+
+    renderContacts(filtered);
+  }
+
+  searchInput.addEventListener("input", renderCurrentList);
+
+  // Toggle favorites filter
+  favoritesOnlyBtn.addEventListener("click", () => {
+    showFavoritesOnly = !showFavoritesOnly;
+    favoritesOnlyBtn.textContent = showFavoritesOnly ? "📱 All Contacts" : "⭐ Favorites Only";
+    favoritesOnlyBtn.style.background = showFavoritesOnly ? "#27ae60" : "#f39c12";
+    renderCurrentList();
+  });
+
+  // Phone actions
+  window.callContact = function(phone) {
+    window.location.href = `tel:${phone}`;
+  };
+
+  window.smsContact = function(phone) {
+    window.location.href = `sms:${phone}`;
+  };
+
+  // Location tracking
+  window.trackLocation = function(contactName) {
+    if (!navigator.geolocation) {
+      locationStatus.textContent = "❌ Geolocation not supported";
+      return;
+    }
+
+    locationStatus.innerHTML = `📍 Getting location for <strong>${contactName}</strong>...`;
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords;
+        const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        locationStatus.innerHTML = `
+          📍 <strong>${contactName}</strong> Location:<br>
+          Lat: ${latitude.toFixed(5)} | Lng: ${longitude.toFixed(5)}<br>
+          <a href="${mapUrl}" target="_blank">🗺️ Open in Google Maps</a>
+        `;
+      },
+      error => {
+        locationStatus.textContent = `❌ Location error: ${error.message}`;
+      }
+    );
+  };
+
+  function clearForm() {
+    nameInput.value = phoneInput.value = emailInput.value = "";
+  }
+
+  function clearFormAndReset() {
+    clearForm();
+    editIndex = null;
+    addBtn.style.display = "inline-block";
+    updateBtn.style.display = "none";
+    cancelEditBtn.style.display = "none";
+  }
+
+  // Initialize
+  renderCurrentList();
+</script>
+</body>
+</html>
